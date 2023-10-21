@@ -1,3 +1,7 @@
+# Created by https://www.toptal.com/developers/gitignore/api/node
+# Edit at https://www.toptal.com/developers/gitignore?templates=node
+
+### Node ###
 # Logs
 logs
 *.log
@@ -72,11 +76,6 @@ web_modules/
 # Yarn Integrity file
 .yarn-integrity
 
-# .gitignore
-.env
-node_modules/
-
-
 # dotenv environment variable files
 .env
 .env.development.local
@@ -84,6 +83,8 @@ node_modules/
 .env.production.local
 .env.local
 
+./views/.env
+config.js
 # parcel-bundler cache (https://parceljs.org/)
 .cache
 .parcel-cache
@@ -107,7 +108,6 @@ dist
 
 # vuepress v2.x temp and cache directory
 .temp
-.cache
 
 # Docusaurus cache and generated files
 .docusaurus
@@ -120,6 +120,7 @@ dist
 
 # DynamoDB Local files
 .dynamodb/
+./config
 
 # TernJS port file
 .tern-port
@@ -133,3 +134,14 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+### Node Patch ###
+# Serverless Webpack directories
+.webpack/
+
+# Optional stylelint cache
+
+# SvelteKit build / generate output
+.svelte-kit
+
+# End of https://www.toptal.com/developers/gitignore/api/node
