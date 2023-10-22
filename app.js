@@ -6,6 +6,8 @@ import User from "./model/users.js";
 import session from "express-session";
 import passport from "passport";
 import bodyParser from "body-parser";
+import GoogleStrategy from "passport-google-oauth20";
+import findOrCreate from "mongoose-findorcreate";
 
 dotEnv.config();
 
@@ -34,28 +36,59 @@ mongoose.connect(DB_HOST, console.log("DB connected"));
 
 passport.use(User.createStrategy());
 
-passport.serializeUser(User.serializeUser());
-passport.deserializeUser(User.deserializeUser());
+// passport.serializeUser(User.serializeUser());
+// passport.deserializeUser(User.deserializeUser());
 
-// passport.serializeUser(function(user, cb) {
-//     process.nextTick(function() {
-//       return cb(null, {
-//         id: user.id,
-//         username: user.username
-//         // picture: user.picture
-//       });
-//     });
-//   });
+passport.serializeUser(function (user, cb) {
+  process.nextTick(function () {
+    return cb(null, {
+      id: user.id,
+      username: user.username,
+      picture: user.picture,
+    });
+  });
+});
 
-//   passport.deserializeUser(function(user, cb) {
-//     process.nextTick(function() {
-//       return cb(null, user);
-//     });
-//   });
+passport.deserializeUser(function (user, cb) {
+  process.nextTick(function () {
+    return cb(null, user);
+  });
+});
+
+passport.use(
+  new GoogleStrategy(
+    {
+      clientID: process.env.CLIENT_ID,
+      clientSecret: process.env.CLIENT_SECRET,
+      callbackURL: "http://localhost:3000/auth/google/secrets",
+      // userProfileURL: "https://www.googleapis.com/oauth2/v3/userinfo"
+    },
+    function (accessToken, refreshToken, profile, cb) {
+      console.log(profile);
+      User.findOrCreate({ googleId: profile.id }, function (err, user) {
+        return cb(err, user);
+      });
+    }
+  )
+);
 
 app.get("/", (req, res) => {
   res.render("home");
 });
+
+app.get(
+  "/auth/google",
+  passport.authenticate("google", { scope: ["profile"] })
+);
+
+app.get(
+  "/auth/google/secrets",
+  passport.authenticate("google", { failureRedirect: "/login" }),
+  function (req, res) {
+    // Successful authentication, redirect home.
+    res.redirect("/secrets");
+  }
+);
 
 app.get("/secrets", (req, res) => {
   if (req.isAuthenticated()) {
@@ -63,6 +96,31 @@ app.get("/secrets", (req, res) => {
   } else {
     res.redirect("/login");
   }
+});
+
+app.get("/submit", (req, res) => {
+  if (req.isAuthenticated()) {
+    res.render("submit");
+  } else {
+    res.redirect("/login");
+  }
+});
+
+app.post("/submit", (req, res) => {
+  const { secret } = req.body;
+  User.findById(req.user.id)
+    .then((user) => {
+      if (user) {
+        user.secret = secret;
+        user
+          .save()
+          .then((result) => {
+            res.redirect("/secrets");
+          })
+          .catch((err) => console.log(err));
+      }
+    })
+    .catch((err) => console.log(err));
 });
 
 app.get("/register", (req, res) => {
@@ -123,7 +181,6 @@ app.put("/register", (req, res) => {
     })
     .catch((err) => res.send(err));
 });
-
 
 app.listen(3000, () => {
   console.log("Server is running on port 3000");
