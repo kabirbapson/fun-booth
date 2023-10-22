@@ -97,11 +97,6 @@ app.get("/secrets", (req, res) => {
       res.render("secrets", { userWithSecrets });
     })
     .catch((err) => console.log(err));
-  // if (req.isAuthenticated()) {
-  //   res.render("secrets");
-  // } else {
-  //   res.redirect("/login");
-  // }
 });
 
 app.get("/submit", (req, res) => {
