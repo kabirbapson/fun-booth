@@ -10,7 +10,7 @@ body {
 
 .secret-text {
   text-align: center;
-  font-size: 2rem;
-  color: #fff;
-  background-color: #000;
+  /* font-size: 1rem; */
+  color: #e7fdf3;
+  background-color: #0c0c0c;
 }

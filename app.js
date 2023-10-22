@@ -91,11 +91,17 @@ app.get(
 );
 
 app.get("/secrets", (req, res) => {
-  if (req.isAuthenticated()) {
-    res.render("secrets");
-  } else {
-    res.redirect("/login");
-  }
+  User.find({ secret: { $ne: null } })
+    .then((userWithSecrets) => {
+      console.log(userWithSecrets);
+      res.render("secrets", { userWithSecrets });
+    })
+    .catch((err) => console.log(err));
+  // if (req.isAuthenticated()) {
+  //   res.render("secrets");
+  // } else {
+  //   res.redirect("/login");
+  // }
 });
 
 app.get("/submit", (req, res) => {
